@@ -33,7 +33,6 @@ const LoginPage = () => {
               <p className="text-base-content/60">Sign in to your account</p>
             </div>
           </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="form-control">
@@ -101,9 +100,25 @@ const LoginPage = () => {
                 "Sign in"
               )}
             </button>
-          </form>
+          </form>{" "}
+          <div className="text-center">
+            <p className="text-base-content/60">
+              Don&apos;t have an account?{" "}
+              <Link to="/signup" className="link link-primary">
+                Create account
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Right Side - Image/Pattern */}
+      <AuthImagePattern
+        title={"Welcome back!"}
+        subtitle={
+          "Sign in to continue your conversations and catch up with your messages."
+        }
+      />
     </div>
   );
 };
