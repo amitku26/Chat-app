@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const BASE_URL =
-  import.meta.env.MODE === "development" ? "http://localhost:9002" : "/";
+  import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -15,103 +15,69 @@ export const useAuthStore = create((set, get) => ({
   onlineUsers: [],
   socket: null,
 
-  // Check Authentication
   checkAuth: async () => {
-    set({ isCheckingAuth: true });
     try {
-      const response = await axiosInstance.get("/auth/check");
-      if (response?.data) {
-        set({ authUser: response.data });
-        get().connectSocket();
-      } else {
-        throw new Error("Unexpected response format during auth check");
-      }
+      const res = await axiosInstance.get("/auth/check");
+
+      set({ authUser: res.data });
+      get().connectSocket();
     } catch (error) {
-      console.error("Error in checkAuth:", error);
+      console.log("Error in checkAuth:", error);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
     }
   },
 
-  // Signup
   signup: async (data) => {
     set({ isSigningUp: true });
     try {
-      const response = await axiosInstance.post("/auth/signup", data);
-      if (response?.data) {
-        set({ authUser: response.data });
-        toast.success("Account created successfully!");
-        get().connectSocket();
-      } else {
-        throw new Error("Unexpected response format during signup");
-      }
+      const res = await axiosInstance.post("/auth/signup", data);
+      set({ authUser: res.data });
+      toast.success("Account created successfully");
+      get().connectSocket();
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to create account. Please try again.";
-      toast.error(errorMessage);
-      console.error("Signup error:", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isSigningUp: false });
     }
   },
 
-  // Login
   login: async (data) => {
     set({ isLoggingIn: true });
     try {
-      const response = await axiosInstance.post("/auth/login", data);
-      if (response?.data) {
-        set({ authUser: response.data });
-        toast.success("Logged in successfully!");
-        get().connectSocket();
-      } else {
-        throw new Error("Unexpected response format during login");
-      }
+      const res = await axiosInstance.post("/auth/login", data);
+      set({ authUser: res.data });
+      toast.success("Logged in successfully");
+
+      get().connectSocket();
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Login failed. Please check your credentials.";
-      toast.error(errorMessage);
-      console.error("Login error:", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isLoggingIn: false });
     }
   },
 
-  // Logout
   logout: async () => {
     try {
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
-      toast.success("Logged out successfully!");
+      toast.success("Logged out successfully");
       get().disconnectSocket();
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to log out. Please try again.";
-      toast.error(errorMessage);
-      console.error("Logout error:", error);
+      toast.error(error.response.data.message);
     }
   },
 
-  // Update Profile
   updateProfile: async (data) => {
     set({ isUpdatingProfile: true });
     try {
-      const response = await axiosInstance.put("/auth/update-profile", data);
-      if (response?.data) {
-        set({ authUser: response.data });
-        toast.success("Profile updated successfully!");
-      } else {
-        throw new Error("Unexpected response format during profile update");
-      }
+      const res = await axiosInstance.put("/auth/update-profile", data);
+      set({ authUser: res.data });
+      toast.success("Profile updated successfully");
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Failed to update profile. Please try again.";
-      toast.error(errorMessage);
-      console.error("Profile update error:", error);
+      console.log("error in update profile:", error);
+      toast.error(error.response.data.message);
     } finally {
       set({ isUpdatingProfile: false });
     }
