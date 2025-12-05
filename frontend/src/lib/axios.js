@@ -12,43 +12,37 @@
 // src/lib/axios.js
 import axios from "axios";
 
-// Base URL: dev -> localhost:3000 , prod -> same origin
+// PROPER BASE URL
 const BASE_URL =
   import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : import.meta.env.VITE_API_BASE_URL || "/";
+    ? "http://localhost:3000" // local backend
+    : "https://chat-app-wlqa.onrender.com"; // production backend
 
 export const axiosInstance = axios.create({
-  baseURL: `${BASE_URL}/api`,
-  withCredentials: true, // important: send cookies to server
+  baseURL: `${BASE_URL}/api`, // FULL FIX
+  withCredentials: true, // allow cookies (JWT)
   timeout: 10000,
 });
 
-// Attach Authorization header automatically if token exists in localStorage
+// Attach Authorization token automatically
 axiosInstance.interceptors.request.use(
   (config) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers = config.headers || {};
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch (e) {
-      // ignore
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Optional: centralized response/error handling
+// Centralized error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // You can do global error handling here (e.g. logout on 401).
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default axiosInstance;
+
 
